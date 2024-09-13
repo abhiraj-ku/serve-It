@@ -11,3 +11,18 @@ A minimal live reload server built with Go. It listens for changes to `.html`, `
 ## Prerequisites
 
 - Go (version 1.16 or above)
+
+
+## Future Goals
+
+### 1. Add WebSocket Support
+- Replace the client-side polling mechanism with WebSocket connections to improve efficiency.
+- WebSockets will allow real-time communication between the server and browser, ensuring instant reloads without needing to repeatedly request the `/reload` endpoint.
+
+### 2. Asset Minification
+- Implement a build step to automatically minify static assets (HTML, CSS, and JavaScript).
+- This will reduce file sizes, improve load times, and optimize performance for the browser.
+
+### 3. Gzip Compression
+- Add Gzip compression to the server responses to further reduce the size of files being sent over HTTP.
+- Compressing static assets before serving them will result in faster delivery and better user experience, especially for large files.
