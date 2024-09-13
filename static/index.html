@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+
+  <script>
+    const reloadInterval = setInterval(() => {
+      fetch("/reload")
+        .then((res) => res.text())
+        .then((data) => {
+          if (data === "reload") {
+            clearInterval(reloadInterval);
+            window.location.reload();
+          }
+        })
+        .catch(() => console.log("Reload check Failed!"));
+    }, 1000); // Check every second for reload action
+  </script>
+</html>
