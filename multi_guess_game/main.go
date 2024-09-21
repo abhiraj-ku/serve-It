@@ -71,9 +71,74 @@ func handleNewPlayer(conn net.Conn) {
 	for {
 		if playerTurn == getPlayerIndex(conn) {
 			conn.Write([]byte("Your turn! Guess a letter:"))
-			letter, _ := reader.ReadSlice('\n')
+			letter, _ := reader.ReadString('\n')
 			letter = strings.TrimSpace(letter)
-			procesguess(conn, letter)
+			procesGuess(conn, letter)
 		}
 	}
 }
+
+func setSecretWord(word string) {
+	secretWord = word
+	guessedWord = make([]byte, len(secretWord))
+	for i := range guessedWord {
+		guessedWord[i] = '_'
+	}
+	attempts = len(secretWord) + 5
+}
+
+func procesGuess(conn net.Conn, letter string) {
+	mu.Lock()
+	defer mu.Unlock()
+	playerIndex := getPlayerIndex(conn)
+	player := &players[playerIndex]
+
+	found := false
+	for i, ch := range secretWord {
+		if string(ch) == letter {
+			guessedWord[i] = byte(ch)
+			found = true
+			player.score++
+		}
+	}
+	if !found {
+		attempts++
+	}
+
+	// Broadcast the current guess state
+	broadcast(fmt.Sprintf("Word: %s | attempts left: %d\n", string(guessedWord), attempts))
+	broadcastScore()
+
+	if strings.Contains(string(guessedWord), '_' && attempts > 0) {
+		nextTurn()
+	} else if attempts == 0 {
+		resetGame()
+	} else {
+		broadcast("Congrats! the word has been guesses")
+		resetGame()
+	}
+
+}
+
+// implement getPlayerIndex
+func getPlayerIndex(conn net.Conn) int {
+	for i, player := range players {
+		if player.conn == conn {
+			return i
+		}
+	}
+	return -1
+}
+
+func nextTurn() {
+	playerTurn = (playerTurn + 1) % len(players)
+	broadcast(fmt.Sprintf("It's %s turn to guess!\n", players[playerTurn].name))
+}
+
+func broadcast(message string) {
+	for _, player := range players {
+		player.conn.Write([]byte(message))
+	}
+}
+
+func broadcastScore()
