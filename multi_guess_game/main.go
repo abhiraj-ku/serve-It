@@ -25,16 +25,25 @@ var mu sync.Mutex
 
 func main() {
 	fmt.Println("Server listening on port :8080")
-	server, _ := net.Listen("tcp", ":8080")
-
+	server, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		fmt.Println("error starting server:", err)
+		return
+	}
+	defer server.Close()
 	for {
-		conn, _ := server.Accept()
+		conn, err := server.Accept()
+		if err != nil {
+			fmt.Println("error accepting connection: ", err)
+			continue
+		}
 
 		go handleNewPlayer(conn)
 	}
 }
 
 func handleNewPlayer(conn net.Conn) {
+	defer conn.Close()
 	reader := bufio.NewReader(conn)
 
 	//Ask for player's name
