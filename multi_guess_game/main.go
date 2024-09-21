@@ -109,7 +109,7 @@ func procesGuess(conn net.Conn, letter string) {
 	broadcast(fmt.Sprintf("Word: %s | attempts left: %d\n", string(guessedWord), attempts))
 	broadcastScore()
 
-	if strings.Contains(string(guessedWord), '_' && attempts > 0) {
+	if strings.Contains(string(guessedWord), "_") && attempts > 0 {
 		nextTurn()
 	} else if attempts == 0 {
 		resetGame()
@@ -141,4 +141,15 @@ func broadcast(message string) {
 	}
 }
 
-func broadcastScore()
+func broadcastScore() {
+	message := "Score:\n"
+	for _, player := range players {
+		message += fmt.Sprintf("%s: %d points\n", player.name, player.score)
+	}
+}
+
+func resetGame() {
+	broadcast("The game is over. Starting new game...\n")
+	players = []Player{}
+	playerTurn = 0
+}
